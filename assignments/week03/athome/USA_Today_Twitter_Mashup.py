@@ -1,3 +1,9 @@
+# The script grabs the most recent headlines form USA Today and searches the strings in the twitter API.
+# output is the Headline from USA Today
+# Does the user have a profile image?
+# Displays the tweet
+# Displays the Name of the account owner
+# Displays the timestamp from the tweet
 
 import urllib, urllib2
 from pprint import pprint
