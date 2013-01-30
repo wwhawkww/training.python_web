@@ -22,12 +22,105 @@ But First
 
 Review from the Assignment
 
+Save Memory on Loading
+----------------------
+
+When you are loading data from an API, you can sometimes get more than you
+bargained for. Both BeautifulSoup and the json library provide ways to help:
+
+.. code-block:: python
+    :class: incremental
+
+    page = urllib2.urlopen(url)
+    json_string = page.read()
+    json.loads(json_string)
+
+.. code-block:: python
+    :class: incremental
+
+    page = urllib2.urlopen(url)
+    json.loads(page)
+
+.. class:: incremental
+
+The second form will *buffer* the input as it is read, and minimize memory
+consumption. If you've got really large data sets this can be very good.
+
+Protect Yourself From the Net
+-----------------------------
+
+We learned in our last class that APIs can flake. Remember that. It's *vital*!
+
+.. code-block:: python
+    :class: incremental
+
+    page = urllib2.urlopen(url)
+    parsed = BeautifulSoup(page)
+
+.. code-block:: python
+    :class: incremental
+
+    page = urllib2.urlopen(url)
+    if page.code == 200:
+        parsed = BeautifulSoup(page)
+    else:
+        raise SomeExceptionYouCanCatch
+
+.. class:: incremental
+
+What happens if your desired API is offline when a user comes to see your
+page? Make sure you give yourself a way to be kind to your users. 500 Internal
+Server Errors suck!
+
+What You Made
+-------------
+
+.. class:: incremental
+
+* geographic locations of our Bluebox VMs
+* Visualization of the popularity of Facebook Friends' first names
+* Restaurants near your location with recent Health Inspection data
+* A Last-FM user's top artists, with lists of mixcloud mixes featuring each of
+  them
+* A list of Craigslist apartments with the nearest bars, pizza and sushi
+  places and their Yelp ratings
+* Geographic locations of the top 20 users returned for a twitter search,
+  along with other twitter data
+
+A Note on Homeworks
+-------------------
+
+.. class:: incremental
+
+* I've been saying that only attendance counts for your grade.
+* It was brought to my attention this week that my own syllabus says
+  differently
+* The work we've done so far is all, in some sense, foundational. We will be
+  using tools starting next week that build upon the tools we've encountered.
+
+.. class:: incremental
+
+Homework from this point out should be considered required. We are now
+reaching the level of tools you will use on a day to day basis. Mastery comes
+with practice.
+
 And Second
 ----------
 
 .. class:: big-centered
 
 Questions from the Reading?
+
+And Third
+---------
+
+Open ``assignments/week04/lab/type-along.txt``
+
+.. class:: incremental
+
+This contains all the code examples from today's lecture. It's meant to help
+you with keeping up when we are moving quickly through sample slides. I hope
+it is of some use.
 
 And Now...
 ----------
@@ -57,6 +150,10 @@ Stepping Away
 -------------
 
 Let's think about this same problem in another realm, the command line.
+
+.. class:: incremental
+
+Windows folks, for this next bit please open an ssh terminal on your VM.  
 
 .. class:: incremental
 
@@ -205,11 +302,29 @@ You have a couple of options:
 
 * Python Standard Library CGIHTTPServer
 * Apache
+* IIS (on Windows)
 * Some other HTTP server that implements CGI (lighttpd, ...?)
 
 .. class:: incremental
 
 Let's start locally by using the Python module
+
+.. class:: incremental
+
+Again, Windows folks, this is going to be most easily done on your VM
+
+Running CGI - Preparations
+--------------------------
+
+If you are running this on your VM (*Windows users, this means **you***) and
+you **do not already have the class repo on your vm**, here's the steps to get
+it::
+
+    $ cd
+    $ mkdir git
+    $ cd git
+    $ git clone https://github.com/cewing/training.python_web.git
+    $ cd training.python_web
 
 Running CGI - First Test
 ------------------------
@@ -221,7 +336,8 @@ Make sure you have the latest source of the class documentation, then:
 * Open *two* terminal windows and in both, ``cd`` to the
   ``assignments/week04/lab`` directory
 * In the first terminal, run ``python -m CGIHTTPServer``
-* Open a web browser and load ``http://localhost:8000/``
+* Open a web browser and load ``http://localhost:8000/`` 
+* (if you're running on your VM, you'll open http://<YOUR_BLUEBOX_VM>.blueboxgrid.com:8000/)
 * Click on *CGI Test 1*
 
 Did that work?
@@ -234,11 +350,16 @@ Did that work?
 * The file must be executable, the directory needs to be readable *and*
   executable.
 
+
+.. class:: incremental
+
+Remember that you can use the bash ``chmod`` command to change permissions
+
 Break It
 --------
 
 Once that's working correctly, let's play with breaking it. Start by making
-the file not exectuable:
+the file not executable:
 
 .. class:: incremental small
 
@@ -256,7 +377,8 @@ Reload your web browser and see what happens.
 
 .. class:: incremental
 
-Put the permissions back to how they were before.
+| Put the permissions back to how they were before:
+| $ chmod 755 cgi-bin/cgi_1.py
 
 Break It Differently
 --------------------
@@ -267,6 +389,7 @@ the script?  What happens there?
 .. class:: incremental
 
 * Open ``assignments/week04/lab/cgi-bin/cgi_1.py`` in an editor
+* if you're on your VM, use ``nano cgi-bin/cgi_1.py`` (ctrl-o, <enter> to save, ctrl-x to exit)
 * Before where it says ``cgi.test()``, add a single line:
 
 .. code-block:: python
@@ -329,8 +452,8 @@ Let's fix the error from our traceback.  Edit your ``cgi_1.py`` file to match:
 
 .. class:: incremental
 
-Notice the first line of that script: ``#!/usr/bin/python``. This is called
-the *shebang* (short for hash-bang) and it tells the system what executable
+Notice the first line of that script: ``#!/usr/bin/python``. This is called a
+*shebang* (short for hash-bang) and it tells the system what executable
 program to use when running the script.
 
 CGI Process Execution
@@ -344,7 +467,11 @@ just like you calling::
 
 .. class:: incremental
 
-In fact try that now (use the real path), what do you get?  What is missing?
+In fact try that now (use the real path), what do you get?  
+
+.. class:: incremental
+
+What is missing?
 
 CGI Process Execution
 ---------------------
@@ -366,14 +493,21 @@ processes are run:
 More Permission Fun
 -------------------
 
-Let's interfere with this::
+Let's interfere with this:
 
-    $ ls -l /usr/bin/python
-    -rwxr-xr-x  2 root  wheel ... /usr/bin/python
-    $ sudo chmod 750 /usr/bin/python
-    Password: 
-    $ ls -l /usr/bin/python
-    -rwxr-x---  2 root  wheel ... /usr/bin/python
+.. class:: small
+
+::
+
+    $ ls -l /usr/bin/python*
+    lrwxrwxrwx 1 root root       9 Oct  4 18:48 python -> python2.6
+    lrwxrwxrwx 1 root root       9 Oct  4 18:48 python2 -> python2.6
+    -rwxr-xr-x 1 root root 2288240 Apr 16  2010 python2.6
+    $ sudo chmod 750 python
+    $ ls -l /usr/bin/python*
+    lrwxrwxrwx 1 root root       9 Oct  4 18:48 python -> python2.6
+    lrwxrwxrwx 1 root root       9 Oct  4 18:48 python2 -> python2.6
+    -rwxr-x--- 1 root root 2288240 Apr 16  2010 python2.6
 
 .. class:: incremental
 
@@ -383,12 +517,17 @@ tools.
 Enough of That
 --------------
 
-Okay, put the permissions back on your system python::
+Okay, put the permissions back on your system python:
+
+.. class:: small
+
+::
 
     $ sudo chmod 755 /usr/bin/python
-    Password: 
-    $ ls -l /usr/bin/python
-    -rwxr-xr-x  2 root  wheel ... /usr/bin/python
+    $ ls -l /usr/bin/python*
+    lrwxrwxrwx 1 root root       9 Oct  4 18:48 python -> python2.6
+    lrwxrwxrwx 1 root root       9 Oct  4 18:48 python2 -> python2.6
+    -rwxr-xr-x 1 root root 2288240 Apr 16  2010 python2.6
 
 The CGI Environment
 -------------------
@@ -411,13 +550,13 @@ Where do they come from?
 CGI Servers
 -----------
 
-Let's find 'em.  In a terminal fire up python:
+Let's find 'em.  In a terminal (on your local machine, please) fire up python:
 
 .. code-block::
 
     >>> import CGIHTTPServer
     >>> CGIHTTPServer.__file__
-    '/System/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/CGIHTTPServer.py'
+    '/big/giant/path/to/lib/python2.6/CGIHTTPServer.py'
 
 .. class:: incremental
 
@@ -463,6 +602,11 @@ browser?
 
 A CGI Script must print it's results to stdout.
 
+.. class:: incremental
+
+As a corollary to this, the ``test`` method of the cgi module has this line:
+``sys.stderr = sys.stdout``. Why?
+
 Recap:
 ------
 
@@ -473,7 +617,7 @@ What the Server Does:
 * parses the request
 * sets up the environment, including HTTP and SERVER variables
 * figures out if the URI points to a CGI script and runs it
-* builds an appropriate HTTP Response first line ('HTTP/1.1 200 Ok\r\n')
+* builds an appropriate HTTP Response first line ('HTTP/1.1 200 OK\\r\\n')
 * appends what comes from the script on stdout and sends that back
 
 What the Script Does:
@@ -492,7 +636,7 @@ Lab 1
 You've seen the output from the ``cgi.test()`` method from the ``cgi`` module.
 Let's make our own version of this.
 
-.. class:: incremental
+.. class:: incremental small
 
 * In ``assignments/week04/lab/src`` you will find the file
   ``lab1_cgi_template.py``.
@@ -501,6 +645,7 @@ Let's make our own version of this.
 * The script contains some html with text naming elements of the CGI
   environment.
 * Use elements of os.environ to fill in the blanks.
+* view your work in a browser at localhost:8000 *or* <yourvm>.blueboxgrid.com:8000
 
 .. class:: incremental center
 
@@ -674,6 +819,10 @@ This is the bit that sets up CGI for us:
             Allow from all
     </Directory>
 
+.. class:: incremental
+
+More about Apache Configuration: http://httpd.apache.org/docs/
+
 Setting up Our Script
 ---------------------
 
@@ -716,6 +865,7 @@ To get our script to run, we have to put it in the ``cgi-bin`` directory.
 * It is **not** world-writable
 * You'll need to put it somewhere you can write without using ``sudo``
 * Put it in your home directory
+* If you are already working on your VM, you can skip this part.
 
 .. class:: incremental
 
@@ -788,7 +938,7 @@ FastCGI and SCGI are existing implementations of CGI in this fashion.
 * Each of these options has a specific API
 * None are compatible with each-other
 * Code written for one is **not portable** to another
-* This makes it hard to *share resources*
+* This makes it hard to **share resources**
 
 
 WSGI
@@ -838,7 +988,7 @@ A WSGI Appliction must:
 * Be a callable (function, method, class) 
 * Take an environment and a ``start_response`` callable as arguments
 * Return an iterable of 0 or more strings, which are treated as the body of
-  the respponse.
+  the response.
 
 Flowcharts
 ----------
@@ -1095,16 +1245,325 @@ How about WSGI?
 
 Let's find out.
 
+Apache Modules
+--------------
 
+The abilities of Apache are extended using **modules**. You can list *loaded*
+modules with the ``apache2ctl`` command.
 
-scraps
-------
+.. class:: incremental
 
-How does WSGI differ from CGI?
+Open an ssh terminal on your VM:
 
-Is WSGI Python-specific?
+.. class:: incremental
 
-How to run locally
+::
 
-How to run on a server
+    $ which apache2ctl
+    /usr/sbin/apache2ctl
+    $ apache2ctl -M
+    Loaded Modules:
+     ...
+     alias_module (shared)
+     auth_basic_module (shared)
+     authn_file_module (shared)
+     authz_default_module (shared)
+     ...
 
+Another Way
+-----------
+
+You can also see which modules are enabled by checking the listings in
+``/etc/apache2/mods-enabled/``:
+
+.. class:: incremental small
+
+::
+
+    $ ls /etc/apache2/mods-enabled/
+    alias.conf            authz_user.load  dir.load          php5.load
+    alias.load            autoindex.conf   env.load          reqtimeout.conf
+    auth_basic.load       autoindex.load   mime.conf         reqtimeout.load
+    authn_file.load       cgi.load         mime.load         setenvif.conf
+    authz_default.load    deflate.conf     negotiation.conf  setenvif.load
+    authz_groupfile.load  deflate.load     negotiation.load  status.conf
+    authz_host.load       dir.conf         php5.conf         status.load
+
+Available Modules
+-----------------
+
+By default, not all the modules that are *available* have been *enabled*. You
+can check the ``/etc/apache2/mods-available/`` directory to see what else is
+there: 
+
+.. class:: incremental small
+
+::
+
+    $ ls /etc/apache2/mods-available/
+    actions.conf          cern_meta.load     ident.load           proxy_http.load
+    actions.load          cgi.load           imagemap.load        proxy_scgi.load
+    alias.conf            cgid.conf          include.load         reqtimeout.conf
+    alias.load            cgid.load          info.conf            reqtimeout.load
+    asis.load             charset_lite.load  info.load            rewrite.load
+    auth_basic.load       dav.load           ldap.load            setenvif.conf
+    auth_digest.load      dav_fs.conf        log_forensic.load    setenvif.load
+    ...
+
+Adding New Modules
+------------------
+
+.. class:: incremental
+
+* Debian/Ubuntu provide pre-packaged versions of software like Apache
+* The pre-packaged versions will come with popular extensions included
+* We want to install an Apache module which is *not* included in the
+  pre-packaged Apache
+* We can use the packaging tools in Debian/Ubuntu to install it ourselves.
+* The packaging tools are called **apt** (Advanced Packaging Tool)
+
+.. class:: incremental
+
+There is more to learn about **apt** than we can hope to cover here. Learn it
+as you need it.
+
+Searching Using apt-cache
+-------------------------
+
+You can search for a package using apt-cache (``apt-cache search`` *text*)::
+
+    $ apt-cache search mod_wsgi
+
+.. class:: incremental
+
+Once you've found the name of a package, you can use apt-cache to read the
+dependencies it has:
+
+.. class:: incremental
+
+::
+
+    $ apt-cache depends libapache2-mod-wsgi
+    libapache2-mod-wsgi
+      Depends: apache2
+        apache2-mpm-itk
+    ...
+
+Installing using apt-get
+------------------------
+
+Okay, so we know what the package is called, and what it will require.  Let's
+install it! (we'll need superuser privileges to do this, so *sudo*)
+
+::
+
+    $ sudo apt-get install libapache2-mod-wsgi
+    Reading package lists... Done
+    Building dependency tree       
+    Reading state information... Done
+    ...
+    Get:1 http://us.archive.ubuntu.com/ubuntu/ lucid/universe libapache2-mod-wsgi 2.8-2ubuntu1 [63.5kB]
+    Fetched 63.5kB in 0s (197kB/s)              
+    ...
+    Setting up libapache2-mod-wsgi (2.8-2ubuntu1)
+     * Restarting web server apache2
+     ... waiting                                     [ OK ]
+
+Check Your Work
+---------------
+
+Are we done?  Remember that command for checking loaded modules?
+
+.. class:: incremental
+
+::
+
+    $ apache2ctl -M
+    Loaded Modules:
+     ...
+     alias_module (shared)
+     auth_basic_module (shared)
+     ...
+     status_module (shared)
+     wsgi_module (shared)
+    Syntax OK
+
+.. class:: incremental center
+
+**Wahooooo!**
+
+Configure mod_wsgi
+------------------
+
+Like CGI, mod_wsgi requires that we do some set up in our Apache
+configuration.
+
+.. class:: incremental
+
+Open the file /etc/apache2/sites-available/default in a text editor:
+
+.. class:: incremental
+
+::
+
+    $ cd /etc/apache2
+    $ vi sites-available/default
+
+.. class:: incremental
+
+You can also use ``nano`` or ``pico`` or ``joe`` or whatever simple text
+editor you like.
+
+Adding WSGIScriptAlias
+----------------------
+
+mod_wsgi uses the directive **WSGIScriptAlias** in exactly the same way that
+CGI uses **ScriptAlias**:
+
+.. code-block:: apache
+    :class: small
+
+    ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+    <Directory "/usr/lib/cgi-bin">
+            AllowOverride None
+            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+            Order allow,deny
+            Allow from all
+    </Directory>
+    
+    # Add this line to the file to expose a /wsgi-bin directory
+    WSGIScriptAlias /wsgi-bin/ /usr/lib/wsgi-bin/
+
+.. class:: incremental
+
+Save your work and exit the editor
+
+Give WSGI Something To Do
+-------------------------
+
+We've set Apache to look in ``/usr/lib/wsgi-bin/`` for wsgi scripts. We need
+to make that directory since it doesn't exist by default::
+
+    $ sudo mkdir /usr/lib/wsgi-bin
+
+.. class:: incremental
+
+On your local machine find the ``wsgi_test.py`` file in
+``assignments/week04/lab/``. Use ``scp`` to move it to your home directory on
+the VM. Then on the VM:
+
+.. class:: incremental small
+
+::
+
+    $ sudo cp ~/wsgi_test.py /usr/lib/wsgi-bin/
+    $ ls -l /usr/lib/wsgi-bin/
+    total 4
+    -rwxr-xr-x 1 root root 955 Jan 22 00:06 wsgi_test.py
+
+Reload Apache
+-------------
+
+Any time you change Apache configuration, you need to restart to pick up the 
+changes.  First, you should check your work to avoid
+crashing Apache::
+
+    $ apache2ctl configtest
+    Syntax OK
+
+.. class:: incremental
+
+Okay, our syntax is good, no problems there.  Let's restart:
+
+.. class:: incremental
+
+::
+
+    $ sudo /etc/init.d/apache2 graceful
+    * Reloading web server config apache2           [ OK ]
+
+.. class:: incremental
+
+Hit http://YOUR_VM.blueboxgrid.com/wsgi-bin/wsgi_test.py with your browser.
+
+Looking at wsgi_test.py
+-----------------------
+
+.. code-block:: python
+    :class: tiny
+
+    #!/usr/bin/python
+    
+    # This is our application object. It could have any name,
+    # except when using mod_wsgi where it must be "application"
+    def application(environ, start_response):
+        
+        # build the response body possibly using the environ dictionary
+        response_body = 'The request method was %s' % environ['REQUEST_METHOD']
+        
+        # HTTP response code and message
+        status = '200 OK'
+        
+        # These are HTTP headers expected by the client.
+        # They must be wrapped as a list of tupled pairs:
+        # [(Header name, Header value)].
+        response_headers = [('Content-Type', 'text/plain'),
+                            ('Content-Length', str(len(response_body)))]
+        
+        # Send them to the server using the supplied function
+        start_response(status, response_headers)
+        
+        # Return the response body.
+        # Notice it is wrapped in a list although it could be any iterable.
+        return [response_body]
+
+Lab 2
+-----
+
+Let's repeat what we did for CGI with WSGI:
+
+.. class:: incremental
+
+* In ``assignments/week04/lab/src`` you will find the file
+  ``lab2_wsgi_template.py``.
+* Copy that file to ``assignments/week04/lab/wsgi-bin/lab2_wsgi.py`` (note the
+  missing '_template' part)
+* The script contains some html with text naming elements of the WSGI
+  environment.
+* Use elements of ``environ`` to fill in the blanks.
+* You can test and debug changes *locally* by running the script (``python
+  lab2_wsgi.py``) and then pointing your browser to ``localhost:8080``
+
+.. class:: incremental center
+
+**GO**
+
+Assignment
+----------
+
+Using what you've learned this week, Attempt the following:
+
+.. class:: incremental
+
+* Create a small, multi-page WSGI application
+* Use ``assignments/week04/athome/bookdb.py`` as a data source
+* Your app index page should list the books in the db
+* Each listing should supply a link to a detail page
+* Each detail page should list information about the book
+
+.. class:: incremental
+
+Use the Armin Ronacher reading from the class outline as a source for hints:
+http://lucumr.pocoo.org/2007/5/21/getting-started-with-wsgi/
+
+Submitting the Assignment
+-------------------------
+
+This week we are going to do something a bit different. Get your application
+running on your VM. Then add the following to ``assignments/week04/athome``
+and submit a pull request:
+
+* A README.txt file containing the URL I can visit to see your application.
+  You can also put questions or comments in this file.
+
+* Your source code, whatever is up on your VM.
