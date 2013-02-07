@@ -1,0 +1,3 @@
+The assignment this week was modified to complete the in class portion on your own in
+flask.  See the AtHome folder.  Run flaskr.py and ping port 5000.  Its functionality 
+should be the same as the in class version.

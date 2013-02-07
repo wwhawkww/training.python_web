@@ -18,7 +18,7 @@ def info(environ, start_response):
         start_response('200 OK', [('Content-Type', 'text/html')])
         for i in steve.keys():
             stri += '<p>%s : %s<p/>' %(i, steve[i])
-        stri +=  '<p><a href =/>BACK</a><p/>'
+        stri +=  '<p><a href ="/">BACK</a><p/>'
         return [stri]
     print '---->' + str(parameters[2])
     
@@ -29,7 +29,7 @@ def index(environ, start_response):
     books = bob.titles()
     str = ""
     for i in books:
-        str += '<p>%s <a href =/info/%s/>info</a><p/>' %(i['title'], i['id'])
+        str += '<p>%s <a href ="/info/%s/">info</a><p/>' %(i['title'], i['id'])
     start_response('200 OK', [('Content-Type', 'text/html')])
     return [str]
 

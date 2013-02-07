@@ -5,5 +5,13 @@
   </head>
   <body>
     <!-- fill out the template with the details of the given book -->
+  
+  <li> {{ "--> TITLE:  %s" % book['title']|upper }}  </li>
+  
+  {% for x in book.keys() %}
+    {% if x != 'title' %}
+      <li> {{ "%s : %s " % (x|capitalize,book[x])  }}  </li>
+    {% endif %}
+  {% endfor %}
   </body>
 </html>
