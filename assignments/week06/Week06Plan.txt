@@ -1,0 +1,62 @@
+Registration Module Implementation:
+
+Group Summary:
+            Group #1 in charge of setting up the registration module in the existing flaskr application.  The normal work of adding the required fields to the settings file and adding the various regular expressions to the url file, as well as the overall skeleton organization for the application, and implimentation of tests.
+            Group #2 in charge of integrating the various views into the meat of the flaskr application.  Including the passing of information between the registration/views.py file and the templates.  
+            Group #3 in charge of templates.  Though there is alot of html involved rather than python, it would be a great way to become familiar with the jinga type syntax used in django templates as well as creating formatted email templates.
+* Depending on time, we can implement the 'basic' backend that uses email authentication.  In order to do so, we would also need to implement Django's email client link.  
+* If you have read through the documentation and wonder why implementing the signals portion is not in the plan, Cris was kind enough to let me know that they are out of the scope of this lab/assignment.
+-------------------------------------------------------------------------- 
+Work Breakdown:
+Task Group #1:
+--  Create working github repo for the group to work from
+    - It might be useful to create a short script for easy/efficient updates during the lab (compatible with PC and Mac)
+--  Setup for main files - Ref: Quickstart Guide in Docs folder
+                Required Settings
+                Setting up URLs
+                Setting up tests
+                    - Use backends.py test cases:
+                            SimpleRegistrationBackendTests
+                    - Use models.py test cases:
+                            setUp
+                            teardown
+                            test_user_creation
+                            test_user_creation_no_email
+                            test_valid_activation
+                    - from forms.py test cases:
+                            test_registration_form
+                            test_registration_form_unique_email
+
+Task Group #2:
+--  Simple Backend (registration/Docs/simple-backend.rst)
+                The simple backend is a prepackaged backend workflow.
+                Signup
+                Account is created and activated
+                No intermediate setup
+                User is logged in immediately
+*Note that because this backend does not use an activation step attempting to use the :func:`~registration.views.activate` view with this backend or calling the backend's ``activate()`` or ``post_activation_redirect()`` methods will raise ``NotImplementedError``.
+--  Registration Views (views.rst)
+                'registration backend <backend-api>' provides two views.
+                ACTIVATE and REGISTER
+                Activate: activate(request, backend[, template_name[, success_url[, extra_context[, **kwargs]]]])
+                Register: register(request, backend[, success_url[, form_class[, disallowed_url[, template_name[, extra_context]]]]])
+
+Task Group #3:
+--  Required Templates
+      registration_complete.html
+        - create a registration_compete.html template to direct the user to from registration.backends.simple.__init__.post_registration_redirect
+        - use the user input information as well as adding some profile information to input.
+             - address, zip, etc.
+      registration_form.html
+        - Located in registration.forms.RegistrationForm
+            - The function is already created and working, but if there is extra time, it might be good
+            to play around with and make into a template
+      **activate.html
+      ** activation_complete.html
+      ** activation_email_subject.txt
+        **activation_key
+        **expiration_days
+      ** activation_email.txt
+        **activation_key
+        **expiration_days
+    ** These can be created if the default registration module is implimented.
